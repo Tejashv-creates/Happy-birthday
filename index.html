@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Mom!</title>
+<style>
+body {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    background: linear-gradient(to bottom, #ffe0e0, #fff5f5);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+.container { padding: 20px; }
+h1 {
+    font-size: 3em;
+    color: #ff4081;
+    margin-bottom: 10px;
+    animation: bounce 1s infinite alternate;
+}
+@keyframes bounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-20px); }
+}
+button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background-color: #ff69b4;
+    color: white;
+}
+.gallery { margin: 30px 0; }
+.photos img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    margin: 10px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+.guestbook input, .guestbook textarea {
+    width: 80%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+#confettiCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 999;
+}
+.balloon-container .balloon {
+    position: absolute;
+    font-size: 2em;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.3s;
+}
+.gifts {
+    margin: 30px 0;
+}
+.gift {
+    font-size: 3em;
+    cursor: pointer;
+    margin: 0 10px;
+    display: inline-block;
+    transition: transform 0.3s;
+}
+.gift:hover { transform: scale(1.2); }
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop>
+    <source src="happy_birthday_song.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<div class="container">
+    <h1 id="greeting">Happy Birthday, Mom! ??</h1>
+    <p id="message">We love you so much! ??</p>
+    <button id="playMusic">Play Music ??</button>
+
+    <div class="balloon-container"></div>
+
+    <div class="gallery">
+        <h2>Our Memories Together</h2>
+        <div class="photos">
+            <img src="photo1.jpg" alt="Memory 1">
+            <img src="photo2.jpg" alt="Memory 2">
+            <img src="photo3.jpg" alt="Memory 3">
+        </div>
+    </div>
+
+    <div class="guestbook">
+        <h2>Leave a Message for Mom</h2>
+        <input type="text" id="name" placeholder="Your Name">
+        <textarea id="wish" placeholder="Your Birthday Wish"></textarea>
+        <button id="submitWish">Send Wish</button>
+        <ul id="wishesList"></ul>
+    </div>
+
+    <div class="gifts">
+        <h2>Click on the gifts to reveal surprises!</h2>
+        <div class="gift" data-message="You are the best mom in the world! ??">??</div>
+        <div class="gift" data-message="Hope your day is full of love! ??">??</div>
+        <div class="gift" data-message="Enjoy every moment! ??">??</div>
+    </div>
+</div>
+
+<canvas id="confettiCanvas"></canvas>
+
+<script>
+// Music
+const music = document.getElementById('bgMusic');
+document.getElementById('playMusic').addEventListener('click', () => { music.play(); });
+
+// Confetti
+const canvas = document.getElementById('confettiCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let confetti = [];
+function createConfetti() {
+    for(let i=0;i<200;i++){
+        confetti.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*6+2,d:Math.random()*10+5});
+    }
+}
+function drawConfetti(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confetti.forEach(c=>{
+        ctx.beginPath();
+        ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
+        ctx.fillStyle = `hsl(${Math.random()*360},100%,50%)`;
+        ctx.fill();
+        c.y += c.d;
+        if(c.y>canvas.height) c.y=0;
+    });
+    requestAnimationFrame(drawConfetti);
+}
+createConfetti(); drawConfetti();
+
+// Guestbook
+const wishesList = document.getElementById('wishesList');
+document.getElementById('submitWish').addEventListener('click', () => {
+    const name = document.getElementById('name').value.trim();
+    const wish = document.getElementById('wish').value.trim();
+    if(name && wish){
+        const li = document.createElement('li');
+        li.textContent = `${name} says: "${wish}"`;
+        wishesList.appendChild(li);
+        document.getElementById('name').value = '';
+        document.getElementById('wish').value = '';
+    }
+});
+
+// Balloons
+const balloonContainer = document.querySelector('.balloon-container');
+function createBalloon(){
+    const balloon = document.createElement('div');
+    balloon.classList.add('balloon');
+    balloon.textContent = '??';
+    balloon.style.left = Math.random()*window.innerWidth+'px';
+    balloon.style.top = window.innerHeight+'px';
+    balloonContainer.appendChild(balloon);
+    let speed = Math.random()*2+1;
+    function floatUp(){
+        let top = parseFloat(balloon.style.top);
+        if(top<-50){ balloon.remove(); } 
+        else { balloon.style.top = top-speed+'px'; requestAnimationFrame(floatUp);}
+    }
+    balloon.addEventListener('click', () => {
+        balloon.textContent = '??';
+        setTimeout(()=>balloon.remove(),500);
+    });
+    floatUp();
+}
+setInterval(createBalloon,1000);
+
+// Gifts
+document.querySelectorAll('.gift').forEach(gift=>{
+    gift.addEventListener('click',()=>alert(gift.dataset.message));
+});
+</script>
+
+</body>
+</html>
